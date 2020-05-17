@@ -116,7 +116,7 @@ public class client_new {
 				// if (inp.equals("bye"));
 			}
 			Date date2 = new Date();
-			String result = "Overall packages:" + i + failed + "\nFailures " + failed + "\nTime started: " + time0
+			String result = "Overall packages:" + ( (int)i + failed)+ "\nFailures " + failed + "\nTime started: " + time0
 					+ "\nTime ended " + formatter.format(date2);
 			long diffInMillies = Math.abs(date2.getTime() - date.getTime());
 			result += "\nResult in Milliseconds" + diffInMillies;
@@ -152,7 +152,7 @@ public class client_new {
 				// System.out.print("End of Message");
 			}
 			Date date2 = new Date();
-			String result = "Overall messages:" + i + failed + "\nFailures " + failed + "\nTime started: "
+			String result = "Overall messages:" + ( (int)i + failed) + "\nFailures " + failed + "\nTime started: "
 					+ formatter.format(date) + "\nTime ended " + formatter.format(date2);
 			long diffInMillies = Math.abs(date2.getTime() - date.getTime());
 			result += "\nResult in Milliseconds " + diffInMillies;
