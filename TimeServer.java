@@ -17,8 +17,8 @@ import java.lang.*;
 
 public class TimeServer  {
 	
-	private static InetAddress ip;
-	private static int port;
+	public static InetAddress ip;
+	public static int port;
 	
 	private	static String protocol;
 	
@@ -37,13 +37,15 @@ public class TimeServer  {
 			DatagramSocket serverUDP =null;
         
 			try{
-			ip = InetAddress.getLocalHost(); }
+				
+				System.out.println("Got ip "+ip);
+			}
 			catch(Exception e){
 				e.printStackTrace();
 			}
 			
 			try {
-			   serverUDP = new DatagramSocket(port,ip);
+			   serverUDP = new DatagramSocket(port);
 			  
 			   //binds
 			   
@@ -54,6 +56,7 @@ public class TimeServer  {
 		   try 
 		   {
 			   serverTCP = new ServerSocket(port);
+			   System.out.println("TCP Socket Adress: "+serverTCP.getLocalSocketAddress());
 			   //binds
 			   
 			   //
@@ -106,11 +109,13 @@ public class TimeServer  {
 	public static void serveUDP(DatagramSocket serverUDP) {
 		while(true){
 		byte buf[] = null;
-		byte[] buf1 = new byte[1024];
+		byte[] buf1 = new byte[65535];
 		DatagramPacket q = new DatagramPacket(buf1, buf1.length);
 		try{
-			System.out.println("Waiting for UDPPacket");
+			System.out.println("Waiting for UDPPacket on "+serverUDP.getLocalPort()+" "+serverUDP.getInetAddress());
 			serverUDP.receive(q);
+			System.out.println("Client:-" + q.getData());
+			System.out.println("Received Package");
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -123,9 +128,11 @@ public class TimeServer  {
 		 // the data. 
 		 
          DatagramPacket DpSend = new DatagramPacket(buf, buf.length,q.getAddress(), q.getPort()); 
+         System.out.println("time"+buf);
          // Step 3 : invoke the send call to actually send 
          // the data. 
          try {
+        	System.out.println("Return package "+q.getAddress()+" "+q.getPort());
 			serverUDP.send(DpSend);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -137,8 +144,8 @@ public class TimeServer  {
 		
 			while(true){
 			System.out.println(serverTCP.getInetAddress());
-			System.out.println("TCP Waiting for client " + serverTCP.getLocalPort());
-			System.out.println("Waiting for TCPPacket");
+			System.out.println("TCP Waiting for client " + serverTCP.getLocalPort()+" "+serverTCP.getInetAddress());
+			System.out.println("Waiting for TCPPacket"+ip+" "+port);
 			Socket socket =serverTCP.accept();
 
 			InputStream in = socket.getInputStream();

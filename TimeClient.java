@@ -201,6 +201,7 @@ public class TimeServer {
 
 		s.receive(q);
 		ip = InetAddress.getByAddress(Arrays.copyOfRange(q.getData(), q.getLength() - 4, q.getLength()));
+		ip = InetAddress.getLocalHost();
 		System.out.println(ip);
 
 		s.close();
