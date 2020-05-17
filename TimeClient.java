@@ -56,7 +56,7 @@ public class TimeServer {
 		}
 		if (protocol == null) {
 			protocol = "udp";
-			
+
 		}
 		if (port == 0) {
 			if (protocol.equals("udp"))port=123; //ntp for udp
@@ -83,7 +83,7 @@ public class TimeServer {
 			}
 		}
 		System.out.println("Sending on Port: " + port + "+ to IP-Adress: " + ip.toString() + " using " + protocol + "\n");
-		if(protocol=="tcp") {
+		if(protocol.equals("tcp")) {
 			try {
 				runTCP();
 			}
@@ -92,7 +92,7 @@ public class TimeServer {
 			}
 		}
 		else {
-			
+
 			runUDP(serverUDP);
 		}
 
@@ -101,9 +101,9 @@ public class TimeServer {
 	}
 
 	public static void runTCP() throws Exception  {
-		
-		//System.out.println("TCP Waiting for client " + serverTCP.getLocalPort());
-		Socket socket = new Socket(dns,port);
+
+		System.out.println("TCP Waiting for server response\n ip: "+ip+"\n port: "+port);
+		Socket socket = new Socket(ip,port);
 		InputStream in = socket.getInputStream();
 		OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(),"US_ASCII");
 		out.write("GET / HTTP/1.0\r\n\r\n");
@@ -116,7 +116,7 @@ public class TimeServer {
 		in.close();
 		out.close();
 		socket.close();
-		
+
 
 
 	}
@@ -124,11 +124,11 @@ public class TimeServer {
 	public static void runUDP(DatagramSocket serverUDP) {
 		byte buf[] = null;
 
-		String time = java.time.LocalTime.now().toString();
+		//String time = java.time.LocalTime.now().toString();
 		//System.out.println(time);
 
 		// convert the String input into the byte array.
-		buf = time.getBytes();
+		buf = new byte[1024];
 
 		// Step 2 : Create the datagramPacket for sending
 		// the data.
@@ -154,11 +154,11 @@ public class TimeServer {
 	/*
 	 * public static void running(ServerSocket serverTCP, DatagramSocket serverUDP)
 	 * {
-	 * 
+	 *
 	 * ip = null; try { ip = InetAddress.getLocalHost(); } catch
 	 * (UnknownHostException e1) { // TODO Auto-generated catch block
 	 * e1.printStackTrace(); }
-	 * 
+	 *
 	 * while (true) { System.out.println("Running a tcp client"); runTCP(serverTCP);
 	 * System.out.println("Running a udp client"); runUDP(serverUDP); } // }
 	 */
@@ -186,14 +186,14 @@ public class TimeServer {
 		try {
 			DatagramPacket p = new DatagramPacket(buf, query(dns,buf), google, 53);
 			System.out.println("sending message to google's dns server");
-			s.send(p); //Exception thrown right here 
-			} 
+			s.send(p); //Exception thrown right here
+			}
 		catch(Exception e ) {
-			
+
 			e.printStackTrace();
 			s.close();
 			return;
-			
+
 		}
 		System.out.println("Receive");
 
@@ -202,7 +202,7 @@ public class TimeServer {
 		s.receive(q);
 		ip = InetAddress.getByAddress(Arrays.copyOfRange(q.getData(), q.getLength() - 4, q.getLength()));
 		System.out.println(ip);
-		
+
 		s.close();
 	}
 
@@ -212,12 +212,12 @@ public class TimeServer {
 		ByteBuffer query = ByteBuffer.wrap(buf);
 		query.put(header);
 		// encode each label of the domain name
-		
+
 			for (String s : name.split("\\.")) {
 				query.put((byte)s.length()).put(s.getBytes("ascii"));
-			}	
-		
-	
+			}
+
+
 		// write trailer
 		query.put(trailer);
 		// return length of query
