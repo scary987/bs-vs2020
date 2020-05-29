@@ -116,6 +116,11 @@ public class Converter
 	public static byte[] cdr() {
 		return cdr (new Date());
 	}
+	public static byte indentier(int id,boolean primary) {
+		
+		
+		return 0;
+	}
 	public static void main(String[] args) {
 		Date date = new Date();
 		byte[] cdr =cdr(date);
