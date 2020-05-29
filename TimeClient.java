@@ -22,7 +22,7 @@ import java.io.*;
 import java.nio.Buffer.*;
 import java.nio.ByteBuffer;
 
-public class TimeServer {
+public class TimeClient {
 
 	static InetAddress ip;
 	static int port = 0;
