@@ -116,9 +116,12 @@ public class Converter
 	public static byte[] cdr() {
 		return cdr (new Date());
 	}
-	public static byte indentier(int id,boolean primary) {
+	public static byte indentifier(int id,boolean primary) {
 		
-		
+		byte a = (byte) 0xFF;
+		String s1 = String.format("%8s", Integer.toBinaryString(a & 0xFF)).replace(' ', '0');
+		 a&=3; // sets first 2 bits 2 11, private mode in ans
+		System.out.println(s1);
 		return 0;
 	}
 	public static void main(String[] args) {
@@ -136,7 +139,7 @@ public class Converter
 		System.out.print("\n");
 		System.out.println(xcdrtostring(cdr));
 		System.out.println(xcdrtostring(xdr));
-		
+		indentifier(0,false);
 	}
 
 }
