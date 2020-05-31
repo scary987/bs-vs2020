@@ -58,10 +58,11 @@ public class server_new {
 							break;
 						}
 						String received = data(receive).toString();
-						if (received.contains("REQEST")) {
-							System.out.println("Client requested");
-							byte[] requesthead = "POST".getBytes();
-							byte[] temp = new byte[1];
+						
+						if (received.contains("REQUEST")) {
+							//System.out.println("Client requested");
+							byte[] requesthead = "POST ".getBytes();
+							byte[] temp = new byte[1024];
 							if (received.contains("=")) {
 								if (received.contains("XDR")) {
 									temp = Converter.xdr();
@@ -71,15 +72,16 @@ public class server_new {
 									temp = Converter.asn();
 								} else if (received.contains("OBJECT")) {
 
-								} else {
-									temp = Converter.cdr();
-								}
+								} 
 							}
-
+							else {
+								temp = Converter.cdr();
+							}
 						/*	Date date = new Date();
 							String time = formatter.format(date);
 							time = "POST" + time; */
 							buf = Converter.concat(requesthead, temp);
+							System.out.println("buf: "+new String(buf));
 							DpSend = new DatagramPacket(buf, buf.length, DpReceive.getAddress(), DpReceive.getPort());
 							ds.send(DpSend);
 
@@ -110,13 +112,31 @@ public class server_new {
 						System.out.print("Client(TCP):-");
 						BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 						char[] a=new char[1024];
-						reader.read(a) ;
+						reader.read(a);
+						//System.out.println(a);
+						byte [] temp = null;
+						String received = new String(a);
+						System.out.println(received);
+						if (received.contains("=")) {
+							if (received.contains("XDR")) {
+								temp = Converter.xdr();
+							} else if (received.contains("CDR")) {
+								temp = Converter.cdr();
+							} else if (received.contains("ANS")) {
+								temp = Converter.asn();
+							} else if (received.contains("OBJECT")) {
+
+							} 
+							}
+						else {
+							temp = Converter.cdr();
+						}
 						//String read =""+ reader.read();
-						System.out.println(a);
+						
 					/*	Date	 date = new Date();
 						String time = formatter.format(date);
 						System.out.println(time); */
-						out.write(Converter.cdr());
+						out.write(temp);
 
 						// out.write("My reply".getBytes());
 						// System.out.println("My reply");

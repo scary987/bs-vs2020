@@ -46,8 +46,25 @@ public class client_new {
 		// carrying the data.
 
 		if (args.length == 0) {
-			System.out.println("Usage: [<protocol>:]<server>[:<port>]\n");
+			System.out.println("Usage: [<protocol>:]<server>[:<port>] [-<format>] \n");
+			System.out.println("supported protocols: tcp, udp ");
+			System.out.println("supported formats (in strings): cdr,xdr, asn");
 			return;
+		}
+		String temp;
+		for(int i = 1; i<args.length;i++) {
+			temp = args[i].toLowerCase();
+			if(temp.contains("-")) {
+				if(temp.contains("cdr")) {
+					format="CDR";
+				}
+				if(temp.contains("xdr")) {
+					format="XDR";
+				}
+				if(temp.contains("ans")) {
+					format="ANS";
+				}
+			}
 		}
 		String[] input = args[0].split(":");
 		if (input.length == 3) {
@@ -75,7 +92,7 @@ public class client_new {
 			protocol = "udp";
 
 		DatagramSocket ds = new DatagramSocket();
-		ds.setSoTimeout(100);
+		ds.setSoTimeout(1000);
 
 		InetAddress ip = InetAddress.getByName(dns);
 		byte buf[] = null;
@@ -117,7 +134,7 @@ public class client_new {
 					i--;
 					failed++;
 				}
-				System.out.println("Server(UDP):-" + data(DpReceive.getData()));
+				System.out.println("Server(UDP):-" + new String(DpReceive.getData()));
 
 				// break the loop if user enters "bye"
 				// if (inp.equals("bye"));
