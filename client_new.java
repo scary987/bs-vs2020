@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
 public class client_new {
 	public static void main(String args[]) throws IOException {
 		Scanner sc = new Scanner(System.in);
@@ -94,7 +95,7 @@ public class client_new {
 
 				// convert the String input into the byte array.
 				if(!format.equals("") ) {
-					inp+=format;
+					inp+="="+format;
 				}
 				System.out.println(inp);
 				buf = inp.getBytes();
@@ -143,7 +144,7 @@ public class client_new {
 				InputStream in = socket.getInputStream();
 				OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), "US-ASCII");
 				out.write("REQUEST TIME" + i);
-				System.out.println("REQUEST TIME" +i);
+				System.out.println("REQUEST TIME" +i+"\n");
 				out.flush();
 
 				System.out.print("Server(TCP):-");
