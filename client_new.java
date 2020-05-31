@@ -39,6 +39,7 @@ public class client_new {
 		boolean tcp = true;
 		String dns = null;
 		String protocol = null;
+		String format = "";
 		int port = 0;
 		// Step 1:Create the socket object for
 		// carrying the data.
@@ -89,12 +90,17 @@ public class client_new {
 			Date date = new Date();
 			String time0 = formatter.format(date);
 			for (i = 0; i < 100000; i++) {
-				String inp = "REQUEST TIME" + i;
+				String inp = "REQUEST FULL" + i;
 
 				// convert the String input into the byte array.
+				if(!format.equals("") ) {
+					inp+=format;
+				}
 				System.out.println(inp);
 				buf = inp.getBytes();
-
+				
+				/*	else if(format.equals("OBJECT")) {}
+				*/
 				// Step 2 : Create the datagramPacket for sending
 				// the data.
 				DatagramPacket DpSend = new DatagramPacket(buf, buf.length, ip, port);

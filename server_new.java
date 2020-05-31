@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;   
 import java.text.SimpleDateFormat;  
 import java.util.Date;  
+
 public class server_new {
 	public static void main(String[] args) throws IOException {
 		// Step 1 : Create a socket to listen at port 1234
@@ -57,11 +58,37 @@ public class server_new {
 							System.out.println("Client sent bye.....EXITING");
 							break;
 						}
-					    Date date = new Date();    
-					    String time=formatter.format(date);
-						buf = time.getBytes();
-						DpSend = new DatagramPacket(buf, buf.length, DpReceive.getAddress(), DpReceive.getPort());
-						ds.send(DpSend);
+						String received = data(receive).toString();
+						if (received.contains("REQEST")) {
+							System.out.println("Client requested");
+							byte[] requesthead="POST".getBytes();
+							byte[] temp = new byte[1];
+							if(received.contains("XDR")) {
+								temp =Converter.xdr();
+							}
+							else if(received.contains("CDR")) {
+								temp =Converter.cdr();
+							}
+							else if (received.contains("ANS")) {
+								temp =Converter.asn();
+							}
+							else if(received.contains("OBJECT")) {
+								
+							}
+							else {
+								temp = Converter.cdr();
+							}
+							
+						    Date date = new Date();    
+						    String time=formatter.format(date);
+						    time = "POS"+time;
+							buf = Converter.concat(requesthead,temp);
+							DpSend = new DatagramPacket(buf, buf.length, DpReceive.getAddress(), DpReceive.getPort());
+							ds.send(DpSend);
+						
+						
+						}
+
 
 						// Clear the buffer after every message.
 						receive = new byte[65535];
