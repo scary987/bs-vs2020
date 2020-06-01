@@ -52,11 +52,6 @@ public class server_new {
 						System.out.println("Client(UDP):-" + data(receive));
 
 						// Exit the server if the client sends "bye"
-
-						if (data(receive).toString().equals("bye")) {
-							System.out.println("Client sent bye.....EXITING");
-							break;
-						}
 						String received = data(receive).toString();
 
 						if (received.contains("REQUEST")) {
@@ -84,7 +79,13 @@ public class server_new {
 								} else if (received.contains("ANS")) {
 									temp = Converter.asn(content);
 								} else if (received.contains("OBJECT")) {
+									ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+									ObjectOutput oo = new ObjectOutputStream(bStream); 
+									oo.writeObject(new Date()); // just to prove I can do it with any object instead of just strings to byte
+									
+									oo.close();
 
+									temp = bStream.toByteArray();
 								}
 							} else {
 								temp = Converter.cdr(content);
@@ -94,6 +95,7 @@ public class server_new {
 							 * time;
 							 */
 							buf = temp;
+							if(!received.contains("OBJECT")) //ignore object streams, they are way too big to show
 							for(byte j:buf) {
 								System.out.printf("0x%h ", j);
 							}

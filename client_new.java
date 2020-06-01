@@ -131,6 +131,21 @@ public class client_new {
 				byte[] array;
 				int length = DpReceive.getLength();
 				array = DpReceive.getData();
+				if(format.equals("OBJECT")) {
+					
+					ObjectInputStream iStream = new ObjectInputStream(new ByteArrayInputStream(array));
+					try{
+						date = (Date) iStream.readObject();
+						System.out.println("Server(UDP):-" + formatter.format(date));
+						
+						}
+					catch(ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+					iStream.close();
+					continue;
+					
+				}
 				System.out.println("Server(UDP):-" + new String(array) + " " + length);
 				if (format.equals("ANS")) {
 					Converter.printbyte(array[0]);
