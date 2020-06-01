@@ -58,30 +58,46 @@ public class server_new {
 							break;
 						}
 						String received = data(receive).toString();
-						
+
 						if (received.contains("REQUEST")) {
-							//System.out.println("Client requested");
-							byte[] requesthead = "POST ".getBytes();
+
+							//not neededbyte[] requesthead = "POST ".getBytes();
 							byte[] temp = new byte[1024];
+
+							String content = "POST ";
+							if (received.contains("MILLIES")) {
+								content = Converter.Millies();
+							}
+							if (received.contains("DATE")) {
+								content= Converter.DateString();
+							}
+							if (received.contains("FULL")) {
+								content= Converter.Full();
+							} 
+						
+						
 							if (received.contains("=")) {
 								if (received.contains("XDR")) {
-									temp = Converter.xdr();
+									temp = Converter.xdr(content);
 								} else if (received.contains("CDR")) {
-									temp = Converter.cdr();
+									temp = Converter.cdr(content);
 								} else if (received.contains("ANS")) {
-									temp = Converter.asn();
+									temp = Converter.asn(content);
 								} else if (received.contains("OBJECT")) {
 
-								} 
+								}
+							} else {
+								temp = Converter.cdr(content);
 							}
-							else {
-								temp = Converter.cdr();
+							/*
+							 * Date date = new Date(); String time = formatter.format(date); time = "POST" +
+							 * time;
+							 */
+							buf = temp;
+							for(byte j:buf) {
+								System.out.printf("0x%h ", j);
 							}
-						/*	Date date = new Date();
-							String time = formatter.format(date);
-							time = "POST" + time; */
-							buf = Converter.concat(requesthead, temp);
-							System.out.println("buf: "+new String(buf));
+							System.out.println("buf: " + new String(buf));
 							DpSend = new DatagramPacket(buf, buf.length, DpReceive.getAddress(), DpReceive.getPort());
 							ds.send(DpSend);
 
@@ -97,6 +113,14 @@ public class server_new {
 		});
 
 		u.start();
+		
+		/*
+		 * Here starts the tcp part
+		 * 
+		 * 
+		 * 
+		 * 
+		 */
 		Thread t = new Thread(new Runnable() {
 
 			@Override
@@ -110,32 +134,62 @@ public class server_new {
 						InputStream in = socket.getInputStream();
 						OutputStream out = socket.getOutputStream();
 						System.out.print("Client(TCP):-");
+						
 						BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-						char[] a=new char[1024];
+						char[] a = new char[1024];
 						reader.read(a);
-						//System.out.println(a);
-						byte [] temp = null;
+						char[] b = new char[1024];
+						//reader.read(b);
+						byte[] temp = null;
+						
 						String received = new String(a);
-						System.out.println(received);
+						String tail = new String(b);
+						String content="POST ";
+						System.out.println(received+tail);
+						
+						if (received.contains("MILLIES")) {
+							content += Converter.Millies();
+						}
+						if (received.contains("DATE")) {
+							content+= Converter.DateString();
+						}
+						if (received.contains("FULL")) {
+							content+= Converter.Full();
+						}
+						
 						if (received.contains("=")) {
 							if (received.contains("XDR")) {
-								temp = Converter.xdr();
+								temp = Converter.xdr(content);
 							} else if (received.contains("CDR")) {
-								temp = Converter.cdr();
+								temp = Converter.cdr(content);
 							} else if (received.contains("ANS")) {
-								temp = Converter.asn();
+								temp = Converter.asn(content);
 							} else if (received.contains("OBJECT")) {
-
-							} 
+								
+								ObjectOutputStream objectOutput = new ObjectOutputStream(out);
+								//System.out.println("Sending two objects");
+				                objectOutput.writeObject(content);
+				                objectOutput.writeObject(new Date());
+								
+				                objectOutput.close();
+								out.flush();
+								in.close();
+								out.flush();
+								out.close();
+								socket.close();
+								continue;
 							}
-						else {
-							temp = Converter.cdr();
+						} else {
+							temp = Converter.cdr(content);
 						}
-						//String read =""+ reader.read();
 						
-					/*	Date	 date = new Date();
-						String time = formatter.format(date);
-						System.out.println(time); */
+						// String read =""+ reader.read();
+
+						/*
+						 * Date date = new Date(); String time = formatter.format(date);
+						 * System.out.println(time);
+						 */
+						
 						out.write(temp);
 
 						// out.write("My reply".getBytes());

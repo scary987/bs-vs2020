@@ -11,7 +11,45 @@ public class Converter
 
 {
 	static long MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
-
+	
+	
+	public static String Millies(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		Date now = cal.getTime();
+		long timePortion = now.getTime() % MILLIS_PER_DAY;
+		
+		
+		
+		return ""+timePortion;
+	}
+	public static String Millies() {
+		
+		return Millies(new Date());
+	}
+	public static String DateString(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		
+		byte month = (byte) (cal.get(Calendar.MONTH) + 1);
+		int year = cal.get(Calendar.YEAR);
+		byte day = (byte) cal.get(Calendar.DAY_OF_MONTH);
+		String time = "" + year + "//" + month + "//" + day ;
+		
+		
+		return time;
+	}
+	public static String DateString() {
+		return DateString(new Date());
+	}
+	public static String Full(Date date) {
+		return DateString(date)+"//"+Millies(date);
+	}
+	public static String Full() {
+		return Full(new Date());
+	}
+	
+	
 	public static byte[] cdr(Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
@@ -27,7 +65,8 @@ public class Converter
 		// System.out.printf(time);
 		// System.out.println("\n");
 		// System.out.println(time.length());
-		byte[] bytes = ByteBuffer.allocate(4).putInt(time.length()).array();
+		byte[] length = ByteBuffer.allocate(4).putInt(time.length()).array();
+		
 
 		/*
 		 * for (byte b : bytes) { System.out.format("0x%x ", b); }
@@ -36,15 +75,16 @@ public class Converter
 
 		a = time.getBytes();
 		// System.out.println(a+" "+bytes);
-		byte[] c = concat(bytes, a);
+		byte[] c = concat(length, a);
 
 		// for(byte b:c)System.out.println(b);
 		return c;
 	}
 
 	public static byte[] cdr(String s) {
-		byte[] bytes = ByteBuffer.allocate(4).putInt(s.length()).array();
-		return concat(bytes, (s + "\0").getBytes());
+		byte[] length = ByteBuffer.allocate(4).putInt(s.length()).array();
+		//System.out.println(new String(length));
+		return concat(length, (s + "\0").getBytes());
 	}
 
 	public static byte[] xdr() {
@@ -92,10 +132,10 @@ public class Converter
 		// appends the 0s
 		if (a.length % 4 != 0) {
 			byte[] c = new byte[a.length % 4];
-			for (byte byt : c) {
+			for (byte byt : c) 
 				byt = 0;
-			}
-			return concat(a, c);
+			return concat(a,c);
+			//return concat(a, c);
 		}
 		return a;
 	}
@@ -156,7 +196,7 @@ public class Converter
 	}
 
 	public static byte idutf8byte() {
-		return identifier(19, true, false, false);
+		return identifier(12, true, false, false);
 	}
 
 	public static void printbyte(byte a) {
@@ -219,6 +259,24 @@ public class Converter
 
 		a = time.getBytes();
 		// System.out.println(a+" "+bytes);
+		byte[] c = concat(bytes, a);
+
+		// add identifierbyte
+		a = new byte[1];
+		a[0] = idutf8byte();
+		// for(byte b:c)System.out.println(b);
+		return concat(a, c);
+	}
+	public static byte[] asn(String time){
+		byte[] bytes = ByteBuffer.allocate(4).putInt(time.length()).array(); //forms the length to a byte array
+
+		/*
+		 * for (byte b : bytes) { System.out.format("0x%x ", b); }
+		 */
+		byte[] a;
+
+		a = time.getBytes();
+
 		byte[] c = concat(bytes, a);
 
 		// add identifierbyte

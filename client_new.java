@@ -7,9 +7,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Scanner;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -19,19 +16,12 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.net.Socket;
 import java.util.*;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.*;
 import java.io.*;
 import java.nio.Buffer.*;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 
 public class client_new {
 	public static void main(String args[]) throws IOException {
@@ -52,17 +42,20 @@ public class client_new {
 			return;
 		}
 		String temp;
-		for(int i = 1; i<args.length;i++) {
+		for (int i = 1; i < args.length; i++) {
 			temp = args[i].toLowerCase();
-			if(temp.contains("-")) {
-				if(temp.contains("cdr")) {
-					format="CDR";
+			if (temp.contains("-")) {
+				if (temp.contains("cdr")) {
+					format = "CDR";
 				}
-				if(temp.contains("xdr")) {
-					format="XDR";
+				if (temp.contains("xdr")) {
+					format = "XDR";
 				}
-				if(temp.contains("ans")) {
-					format="ANS";
+				if (temp.contains("ans")) {
+					format = "ANS";
+				}
+				if (temp.contains("object")) {
+					format = "OBJECT";
 				}
 			}
 		}
@@ -111,14 +104,15 @@ public class client_new {
 				String inp = "REQUEST FULL" + i;
 
 				// convert the String input into the byte array.
-				if(!format.equals("") ) {
-					inp+="="+format;
+				if (!format.equals("")) {
+					inp += "=" + format;
 				}
 				System.out.println(inp);
 				buf = inp.getBytes();
-				
-				/*	else if(format.equals("OBJECT")) {}
-				*/
+
+				/*
+				 * else if(format.equals("OBJECT")) {}
+				 */
 				// Step 2 : Create the datagramPacket for sending
 				// the data.
 				DatagramPacket DpSend = new DatagramPacket(buf, buf.length, ip, port);
@@ -134,14 +128,25 @@ public class client_new {
 					i--;
 					failed++;
 				}
-				System.out.println("Server(UDP):-" + new String(DpReceive.getData()));
+				byte[] array;
+				int length = DpReceive.getLength();
+				array = DpReceive.getData();
+				System.out.println("Server(UDP):-" + new String(array) + " " + length);
+				if (format.equals("ANS")) {
+					Converter.printbyte(array[0]);
+				}
+
+				for (int j = 0; j < 24; j++) {
+					System.out.printf("0x%h ", array[j]);
+				}
+				System.out.println("");
 
 				// break the loop if user enters "bye"
 				// if (inp.equals("bye"));
 			}
 			Date date2 = new Date();
-			String result = "Overall packages:" + ( (int)i + failed)+ "\nFailures " + failed + "\nTime started: " + time0
-					+ "\nTime ended " + formatter.format(date2);
+			String result = "Overall packages:" + ((int) i + failed) + "\nFailures " + failed + "\nTime started: "
+					+ time0 + "\nTime ended " + formatter.format(date2);
 			long diffInMillies = Math.abs(date2.getTime() - date.getTime());
 			result += "\nResult in Milliseconds" + diffInMillies;
 			System.out.println(result);
@@ -159,24 +164,76 @@ public class client_new {
 			for (i = 0; i < 100000; i++) {
 				Socket socket = new Socket(dns, port);
 				InputStream in = socket.getInputStream();
+				if (format.equals("OBJECT")) {
+					//System.out.println("send object request");
+					
+					OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), "US-ASCII");
+					String inp = "REQUEST FULL";
+					inp += "=" + format;
+					System.out.println(inp);
+					out.write(inp + " " + i);
+					out.flush();
+					ObjectInputStream objectInput = new ObjectInputStream(in);
+					try {
+						try {
+							Object full = (String) objectInput.readObject();
+							String received = (String) full;
+							full = (Date) objectInput.readObject();
+							date = (Date) full;
+							System.out.println(formatter.format(date)+" "+received);
+						
+							
+						} catch (ClassNotFoundException e) {
+							e.printStackTrace();
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+						
+					}
+					objectInput.close();
+					in.close();
+					out.close();
+					socket.close();
+					continue;
+					
+				}
 				OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), "US-ASCII");
-				out.write("REQUEST TIME" + i);
-				System.out.println("REQUEST TIME" +i+"\n");
+				String inp = "REQUEST FULL";
+				if (!format.equals("")) {
+					inp += "=" + format;
+				}
+				System.out.println(inp);
+				out.write(inp + " " + i);
 				out.flush();
 
 				System.out.print("Server(TCP):-");
-				for (int read = in.read(); read != -1; read = in.read()) {
-					System.out.print((char) read);
+				/*
+				 * BufferedReader reader = new BufferedReader(new InputStreamReader(in)); char[]
+				 * a = new char[1024]; reader.read(a); System.out.println(a);
+				 */
+				byte[] array = new byte[1024];
+				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+				for (int read = in.read(array, 0, array.length); read != -1; read = in.read()) {
+					buffer.write(array, 0, read);
 				}
-				System.out.println();
+				array = buffer.toByteArray();
+				/*
+				 * for (byte j: array) { System.out.printf("0x%h ", j); }
+				 */
+				System.out.println("");
+				if (format.equals("ANS")) {
+					Converter.printbyte(array[0]);
+				}
+				System.out.println(new String(array));
 				// in.flush();
+				// reader.close();
 				out.close();
 				in.close();
 				socket.close();
 				// System.out.print("End of Message");
 			}
 			Date date2 = new Date();
-			String result = "Overall messages:" + ( (int)i + failed) + "\nFailures " + failed + "\nTime started: "
+			String result = "Overall messages:" + ((int) i + failed) + "\nFailures " + failed + "\nTime started: "
 					+ formatter.format(date) + "\nTime ended " + formatter.format(date2);
 			long diffInMillies = Math.abs(date2.getTime() - date.getTime());
 			result += "\nResult in Milliseconds " + diffInMillies;
