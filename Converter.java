@@ -23,6 +23,19 @@ public class Converter
 		
 		return ""+timePortion;
 	}
+	public static long MILLIS(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		Date now = cal.getTime();
+		long timePortion = now.getTime() % MILLIS_PER_DAY;
+		
+		
+		
+		return timePortion;
+	}
+	public static long MILLIS() {
+		return MILLIS(new Date());
+	}
 	public static String Millies() {
 		
 		return Millies(new Date());
